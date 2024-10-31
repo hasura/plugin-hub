@@ -3,6 +3,8 @@ import {validatePlugin, filePlugin} from "../plugins/index.js";
 import {TMP} from "../plugins/common/index.js";
 import {profilePlugin} from "../plugins/profile/index.js";
 
+console.log(process.env);
+
 const app = express();
 const PORT = process.env.PORT || 8787;
 

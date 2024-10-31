@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --sourceMap",
     "start": "OTEL_EXPORTER_OTLP_INSECURE=true OTEL_LOG_LEVEL=DEBUG OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 OTEL_SERVICE_NAME=plugin_hub LOG_LEVEL=debug OTEL_METRICS_EXPORTER=console OTEL_TRACES_EXPORTER=console OTEL_LOG_EXPORTER=console node dist/index.js",
+    "start:container": "node dist/index.js",
     "build:watch": "tsc -p tsconfig.json --watch --sourceMap",
     "run:watch": " OTEL_EXPORTER_OTLP_INSECURE=true OTEL_LOG_LEVEL=DEBUG OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 OTEL_SERVICE_NAME=plugin_hub LOG_LEVEL=debug OTEL_METRICS_EXPORTER=console OTEL_TRACES_EXPORTER=console OTEL_LOG_EXPORTER=console nodemon",
     "dev": "run-p build:watch run:watch",

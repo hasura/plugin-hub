@@ -15,17 +15,17 @@ import * as flat from 'flat';
  * @param {Response} res - The response object to send back file generation result.
  */
 export const filePlugin = async (req: Request, res: Response) => {
-    const {response: {data}} = req.body;
-    const output = FileOutput.native;
-    const format = req.header("file-format") as FileFormat;
-    const filenameRoot = req.header("filename-root");
     const rawRequest: GraphQLRequest = req.body['rawRequest'];
-    const session = req.body.session;
-    const user = req.header("x-hasura-user");
     if (rawRequest.operationName == 'IntrospectionQuery') {
         await res.json({status: 'ok'});
         return;
     }
+    const {response: {data}} = req.body;
+    const output = FileOutput.native;
+    const format = req.header("file-format") as FileFormat;
+    const filenameRoot = req.header("filename-root") || rawRequest.operationName;
+    const session = req.body.session;
+    const user = req.header("x-hasura-user");
     await startActiveTrace("file-output", async (span?: Span) => {
         try {
             if (data) {

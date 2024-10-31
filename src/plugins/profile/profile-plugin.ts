@@ -9,16 +9,16 @@ import {Span} from "@opentelemetry/api";
 export const profilePlugin = async (req: Request, res: Response) => {
 
     const rawRequest: GraphQLRequest = req.body['rawRequest'];
-    const session = req.body.session;
-    const user = req.header("x-hasura-user");
-    const profileFilename = req.header("profile-filename");
+    const profileFilename = req.header("profile-filename") || `${rawRequest.operationName}.json`;
     const {response: {data}} = req.body;
     if (rawRequest.operationName == 'IntrospectionQuery' || !data || !profileFilename) {
         await res.json({status: 'ok'});
         return;
     }
+    const session = req.body.session;
+    const user = req.header("x-hasura-user");
     if (data) {
-        await startActiveTrace("schema-validate", async (span?: Span) => {
+        await startActiveTrace("profile", async (span?: Span) => {
             const profiling = profileData(data as ObjMap<unknown>)
             try {
                 writeReportFile(undefined, undefined, rawRequest, undefined, profileFilename, user, session, profiling)

@@ -9,7 +9,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=8787
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://local.hasura.dev:4318
       - OTEL_EXPORTER_OTLP_INSECURE=true
       - OTEL_LOG_LEVEL=DEBUG
       - OTEL_SERVICE_NAME=plugin_hub

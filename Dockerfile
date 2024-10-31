@@ -9,4 +9,4 @@ COPY . .
 RUN npm run build
 
 EXPOSE 8787
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:container"]
