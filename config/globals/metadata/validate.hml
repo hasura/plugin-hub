@@ -1,0 +1,23 @@
+kind: LifecyclePluginHook
+version: v1
+definition:
+  name: validate
+  url:
+    valueFromEnv: VALIDATE_URL
+  pre: response
+  config:
+    request:
+      headers:
+        forward:
+          - json-schema
+          - validate-options
+          - max-validate-errors
+          - validate-filename
+          - x-hasura-user
+        additional:
+          hasura-m-auth:
+            valueFromEnv: M_AUTH_KEY
+      session: {}
+      rawRequest:
+        query: {}
+        variables: {}

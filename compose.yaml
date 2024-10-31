@@ -1,0 +1,12 @@
+services:
+  plugin_hub:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8787
+    command: npm run start
