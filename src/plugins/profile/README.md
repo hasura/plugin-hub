@@ -4,7 +4,7 @@ The **POST** `/profile` endpoint provides data profiling capabilities for respon
 
 ## Headers
 
-- `profile-filename`: Required. Specifies the output file for the profiling report
+- `profile-filename`: Specifies the output file for the profiling report. Defaults to the query operation name.
 - `x-hasura-user`: User identifier for tracking profiling requests
 
 ## Request Body
@@ -106,3 +106,43 @@ When `profile-filename` is provided:
 ## Response Format
 - Success: `{"status": "ok"}`
 - Error: Error details with request context
+
+## Examples
+
+### Query
+
+```graphql
+query MyQuery {
+    albums {
+        albumId
+        title
+        tracks {
+            name
+            genre {
+                name
+            }
+        }
+        artist {
+            name
+        }
+    }
+}
+```
+
+### Headers
+
+#### profile-filename
+
+```text
+test-profile.json
+```
+
+### Outputs
+
+#### file output
+
+[test-profile.json](../../../docs/test-profile.json)
+
+#### trace
+
+![profile trace](../../../docs/profile-trace.png)

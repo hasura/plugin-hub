@@ -9,25 +9,25 @@ import {Span} from "@opentelemetry/api";
 export const profilePlugin = async (req: Request, res: Response) => {
 
     const rawRequest: GraphQLRequest = req.body['rawRequest'];
+    const { operationName, query, variables } = rawRequest;
     const profileFilename = req.header("profile-filename") || `${rawRequest.operationName}.json`;
     const {response: {data}} = req.body;
-    if (rawRequest.operationName == 'IntrospectionQuery' || !data || !profileFilename) {
+    if (operationName == 'IntrospectionQuery' || !data || !profileFilename) {
         await res.json({status: 'ok'});
         return;
     }
     const session = req.body.session;
     const user = req.header("x-hasura-user");
-    if (data) {
-        await startActiveTrace("profile", async (span?: Span) => {
-            const profiling = profileData(data as ObjMap<unknown>)
-            try {
-                writeReportFile(undefined, undefined, rawRequest, undefined, profileFilename, user, session, profiling)
-                res.json({status: 'ok'})
-            } catch (_error) {
-                const error = _error as Error;
-                logger.error({user, session, request: rawRequest, error});
-                handleError(res, error, session, rawRequest, user, span)
-            }
-        });
-    }
+    await startActiveTrace("profile", async (span?: Span) => {
+        const profiling = profileData(data as ObjMap<unknown>)
+        span?.setAttributes({user, query, operationName: operationName || '', profileFilename, keys: Object.keys(data).join(",")})
+        try {
+            writeReportFile(undefined, undefined, rawRequest, undefined, profileFilename, user, session, profiling)
+            await res.json({status: 'ok'})
+        } catch (_error) {
+            const error = _error as Error;
+            logger.error({user, session, request: rawRequest, error});
+            handleError(res, error, session, rawRequest, user, span)
+        }
+    });
 }

@@ -16,11 +16,11 @@ export const validatePlugin = async (req: Request, res: Response) => {
     try {
         const rawRequest: GraphQLRequest = req.body['rawRequest'];
         const jsonSchema = req.header("json-schema");
-        if (rawRequest.operationName == 'IntrospectionQuery' || !jsonSchema) {
+        const { operationName, query, variables } = rawRequest;
+        if (operationName == 'IntrospectionQuery' || !jsonSchema) {
             await res.json({status: 'ok'});
             return;
         }
-
         const session = req.body.session;
         const validateOptions = req.header("validate-options")?.toLowerCase();
         const user = req.header("x-hasura-user");
@@ -37,6 +37,7 @@ export const validatePlugin = async (req: Request, res: Response) => {
         const {response: {data}} = req.body;
 
         await startActiveTrace("schema-validate", async (span?: Span) => {
+            span?.setAttributes({jsonSchema, validateOptions, user, maxErrors, validateFilename, query, operationName: operationName || ''})
             const validator = createAjvValidator(jsonSchema, ajvOptions);
             validator({data});
 
@@ -47,7 +48,8 @@ export const validatePlugin = async (req: Request, res: Response) => {
             if (validator.errors) {
                 handleErrors(res, validator.errors, maxErrors, log, jsonSchema, session, rawRequest, user, span);
             } else {
-                res.json({status: 'ok'})
+                span?.setAttributes({"errors": "none"})
+                await res.json({status: 'ok'})
             }
         });
     } catch (error) {

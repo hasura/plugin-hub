@@ -16,7 +16,8 @@ import * as flat from 'flat';
  */
 export const filePlugin = async (req: Request, res: Response) => {
     const rawRequest: GraphQLRequest = req.body['rawRequest'];
-    if (rawRequest.operationName == 'IntrospectionQuery') {
+    const { operationName, query, variables } = rawRequest;
+    if (operationName == 'IntrospectionQuery') {
         await res.json({status: 'ok'});
         return;
     }
@@ -28,7 +29,8 @@ export const filePlugin = async (req: Request, res: Response) => {
     const user = req.header("x-hasura-user");
     await startActiveTrace("file-output", async (span?: Span) => {
         try {
-            if (data) {
+            if (data && filenameRoot) {
+                span?.setAttributes({format, filenameRoot, user, query, operationName: operationName || ''})
                 let i = 0;
                 for (const entry of Object.entries(data)) {
                     const [key, dataset] = entry
