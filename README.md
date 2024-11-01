@@ -24,6 +24,8 @@ A sales analysis team must ensure no negative quantities exist in completed sale
 
 #### Implementation Using Hasura DDN and Data Validator
 
+In this scenario, the sales team uses a graphql query to retrieve their data, but adds addition data validation headers into the request.
+
 ##### The base query:
 ```graphql
 query findCarts {
@@ -42,6 +44,9 @@ query findCarts {
 ```
 
 ##### Add validation rules through JSON Schema headers
+
+We'll use [JSON Schema](https://json-schema.org/]]) as our standard for expressing a data quality rule. You can think of it as the vocabulary that enables JSON data consistency, validity, and interoperability at scale.
+
 Here's a fragment of the complete schema focusing on the quantity validation:
 
 ```json
@@ -122,14 +127,14 @@ The system provides multiple ways to access validation results:
 This shows the exact record location, validation rule, and failing value.
 
 ##### 4. Monitoring Integration
-* Integration with OpenTelemetry for observability
-* Support for operational dashboards and alerts
-* Real-time notification capabilities
+* It's integrated with OpenTelemetry for observability, so support personnel get immediate feedback
+* The same logs can be used to create operational dashboards and alerts
+* And of course, real-time notification capabilities are possible
 
 ## Plugin Integration
 To integrate a plugin with your Hasura instance:
 
-2. Add the plugin endpoint URL to your Hasura DDN configuration. Add the files at `./config/globals/metadata` to you supergraph's `globals/metadata` folder.
+1. Add the plugin endpoint URL to your Hasura DDN configuration. Add the files at `./config/globals/metadata` to you supergraph's `globals/metadata` folder.
 2. Configure the Hasura DDN environment variables by adding the values at `./config/.env` to your supergraph's `.env` file.
 3. Build the supergraph and restart it. For local development the commands would be ```ddn supergraph build local & ddn run docker-start```
 4. Launch the `plugin-hub` with `docker compose up`. Or, alternatively, for local development you may want to add `<path-to-compose.yaml>` to the supergraph's root `compose.yaml/include`.
