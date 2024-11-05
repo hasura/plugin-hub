@@ -8,13 +8,13 @@ The Plugin Hub operates as a lightweight web server that hosts various plugins a
 ## Available Plugins
 
 * **Validate** - [README.md](src/plugins/validate/README.md)  
-  JSON Schema validation plugin for query responses. Supports custom validation rules, error reporting, and telemetry integration.
+  JSON Schema validation plugin for query responses. Enables data quality validation across composited datasets with comprehensive error reporting, telemetry integration, and support for custom validation rules. Ideal for ensuring data consistency when combining data from multiple domains.
 
 * **File Output** - [README.md](src/plugins/file/README.md)  
   Data export plugin that converts query responses into various file formats. Supports HTML, Markdown, CSV, TSV, JSON, and Arrow formats with custom filename configuration.
 
 * **Profile** - [README.md](src/plugins/profile/README.md)  
-  Data profiling plugin that analyzes query responses and generates comprehensive statistical reports. Supports numerical analysis, categorical distributions, datetime patterns, and nested field profiling.
+  Data profiling plugin that analyzes query responses and generates comprehensive statistical reports. Supports numerical analysis (mean, median, quartiles), categorical distributions, datetime patterns, and nested field profiling. Features historical profile tracking to maintain a record of profile executions over time, enabling trend analysis and data quality monitoring across multiple query executions.
 
 ## Basic Use Case Example
 
@@ -45,7 +45,7 @@ query findCarts {
 
 ##### Add validation rules through JSON Schema headers
 
-We'll use [JSON Schema](https://json-schema.org/]]) as our standard for expressing a data quality rule. You can think of it as the vocabulary that enables JSON data consistency, validity, and interoperability at scale.
+We use [JSON Schema](https://json-schema.org/) as our standard for expressing data quality rules. JSON Schema provides a vocabulary that enables JSON data consistency, validity, and interoperability at scale.
 
 Here's a fragment of the complete schema focusing on the quantity validation:
 
@@ -60,7 +60,6 @@ Here's a fragment of the complete schema focusing on the quantity validation:
         "carts": {
           "type": "array",
           "items": {
-            // ... additional schema properties ...
             "if": {
               "properties": {
                 "is_complete": { "const": true }
@@ -91,9 +90,11 @@ Here's a fragment of the complete schema focusing on the quantity validation:
 #### Configuration Options
 
 Control validation behavior through these headers:
-* `validate-options`: Comma-separated list of options (log, strict, allErrors, verbose)
-* `max-validate-errors`: Set the maximum number of errors to report (default: 10)
+* `json-schema`: JSON Schema definition to validate response data against
+* `validate-options`: Comma-separated validation flags (verbose, allerrors, strict, log)
+* `max-validate-errors`: Maximum number of validation errors to return (default: 10)
 * `validate-filename`: Custom filename for validation results
+* `x-hasura-user`: User identifier for tracking validation requests
 
 #### Results and Monitoring
 
@@ -104,7 +105,7 @@ The system provides multiple ways to access validation results:
 * Summary in trace log (available to support team)
 * Optional validation errors in plugin server's error.log
 
-##### 2. Profiling Report Retrieval
+##### 2. Report Retrieval
 * Results stored for 15 minutes
 * Access via: `http(s)://<plugin-hub><port>/files/<validate-filename>`
 * Example: `http://localhost:8787/files/findcarts.json`
@@ -127,9 +128,9 @@ The system provides multiple ways to access validation results:
 This shows the exact record location, validation rule, and failing value.
 
 ##### 4. Monitoring Integration
-* It's integrated with OpenTelemetry for observability, so support personnel get immediate feedback
-* The same logs can be used to create operational dashboards and alerts
-* And of course, real-time notification capabilities are possible
+* Integrated with OpenTelemetry for observability
+* Support for operational dashboards and alerts
+* Real-time notification capabilities
 
 ## Plugin Integration
 To integrate a plugin with your Hasura instance:
