@@ -30,6 +30,6 @@ export const writeReportFile = (jsonSchema?: string, ajvOptions?: AJVOptions, ra
             errors,
             profile
         }, null, 2);
-        fs.writeFileSync(path.join(TMP, filename), dataString);
+        fs.writeFileSync(filename, dataString);
     }
 }

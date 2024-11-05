@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import {validatePlugin, filePlugin} from "../plugins/index.js";
 import {TMP} from "../plugins/common/index.js";
 import {profilePlugin} from "../plugins/profile/index.js";
+import serveIndex from 'serve-index';
 
 console.log(process.env);
 
@@ -21,7 +22,7 @@ app.post('/file-out', filePlugin);
 app.post('/profile', profilePlugin);
 
 // Serve files under `files` path
-app.use('/files', express.static(TMP));
+app.use('/files', express.static(TMP), serveIndex(TMP, { 'icons': true }));
 
 app.listen(PORT, () => {
     console.log(`Hasura Plugin Hub Server running at http://localhost:${PORT}`);

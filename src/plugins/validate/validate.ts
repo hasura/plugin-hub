@@ -1,10 +1,11 @@
-import {GraphQLRequest} from "../common/index.js";
+import {GraphQLRequest, TMP} from "../common/index.js";
 import {Request, Response} from "express";
 import {Span} from "@opentelemetry/api";
 import {logger, startActiveTrace} from "../../telemetry/index.js";
 import {writeReportFile} from "./write-report-file.js";
 import {handleErrors} from "./handle-errors.js";
 import {createAjvValidator} from "./create-ajv-validator.js";
+import path from "path";
 
 export type AJVOptions = {
     verbose: boolean;
@@ -42,7 +43,7 @@ export const validatePlugin = async (req: Request, res: Response) => {
             validator({data});
 
             if (validateFilename) {
-                writeReportFile(jsonSchema, ajvOptions, rawRequest, validator.errors || [], validateFilename, user, session);
+                writeReportFile(jsonSchema, ajvOptions, rawRequest, validator.errors || [], path.join(TMP, validateFilename), user, session);
             }
 
             if (validator.errors) {

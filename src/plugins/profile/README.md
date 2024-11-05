@@ -6,6 +6,7 @@ The **POST** `/profile` endpoint provides data profiling capabilities for respon
 
 - `profile-filename`: Specifies the output file for the profiling report. Defaults to the query operation name.
 - `x-hasura-user`: User identifier for tracking profiling requests
+- `profile-history`: Enables historical profile tracking. Can also be set via `PROFILE_HISTORY` environment variable.
 
 ## Request Body
 ```json
@@ -19,8 +20,6 @@ The **POST** `/profile` endpoint provides data profiling capabilities for respon
 ```
 
 ## Profiling Report Structure
-
-The profiling report includes:
 
 ### Request Context
 - User information
@@ -38,16 +37,16 @@ For each field in the response, the profile may include different types of analy
 #### Numerical Field Statistics
 When applicable, provides detailed statistics including:
 - Basic metrics:
-    - Mean
-    - Minimum
-    - Maximum
-    - Average
-    - Median
-    - Mode
-    - Sum
+  - Mean
+  - Minimum
+  - Maximum
+  - Average
+  - Median
+  - Mode
+  - Sum
 - Statistical measures:
-    - Variance
-    - Standard deviation
+  - Variance
+  - Standard deviation
 
 #### Distribution Analysis
 For numerical fields:
@@ -57,24 +56,24 @@ For numerical fields:
 #### Categorical Field Analysis
 For fields with text or categorical data:
 - `top50Counts`: Frequency distribution of the top 50 values
-    - Shows value-count pairs
-    - Sorted by frequency in descending order
+  - Shows value-count pairs
+  - Sorted by frequency in descending order
 
 #### DateTime Field Analysis
 For date and timestamp fields:
 - Temporal distribution counts:
-    - `year`: Frequency of values by year
-    - `month`: Distribution across months (1-12)
-    - `dayOfWeek`: Distribution across days of the week
-    - `dayOfMonth`: Distribution across days of the month (1-31)
-    - `hourOfDay`: Distribution across hours (0-23)
+  - `year`: Frequency of values by year
+  - `month`: Distribution across months (1-12)
+  - `dayOfWeek`: Distribution across days of the week
+  - `dayOfMonth`: Distribution across days of the month (1-31)
+  - `hourOfDay`: Distribution across hours (0-23)
 - DateTime statistics:
-    - Mean date/time
-    - Earliest (min) date/time
-    - Latest (max) date/time
-    - Median date/time
-    - Mode (most frequent) date/time
-    - Variance and standard deviation in time differences
+  - Mean date/time
+  - Earliest (min) date/time
+  - Latest (max) date/time
+  - Median date/time
+  - Mode (most frequent) date/time
+  - Variance and standard deviation in time differences
 
 ### Nested Fields
 - Supports profiling of nested object structures
@@ -91,6 +90,12 @@ For date and timestamp fields:
 ### Traces
 - Creates OpenTelemetry spans under "schema-validate"
 - Tracks profiling duration and errors
+- Includes additional span attributes:
+  - user
+  - query
+  - operationName
+  - profileFilename
+  - data keys
 
 ### Logs
 When errors occur:
@@ -103,6 +108,18 @@ When `profile-filename` is provided:
 - Contains complete request context and profiling results
 - Includes user and session context
 
+### Historical Profiles
+When `profile-history` header is enabled or `PROFILE_HISTORY` environment variable is set:
+- Creates a directory using MD5 hash of the query
+- Stores each profile execution as a separate file with UUID filename
+- Maintains historical record of all profile executions for the same query
+
+## Processing
+- Main response returns immediately with status "ok"
+- Profile processing occurs asynchronously using `setImmediate`
+- Skips processing for introspection queries
+- Skips processing if no data or profile filename is provided
+
 ## Response Format
 - Success: `{"status": "ok"}`
 - Error: Error details with request context
@@ -113,19 +130,19 @@ When `profile-filename` is provided:
 
 ```graphql
 query MyQuery {
-    albums {
-        albumId
-        title
-        tracks {
-            name
-            genre {
-                name
-            }
-        }
-        artist {
-            name
-        }
+  albums {
+    albumId
+    title
+    tracks {
+      name
+      genre {
+        name
+      }
     }
+    artist {
+      name
+    }
+  }
 }
 ```
 

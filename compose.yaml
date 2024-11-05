@@ -19,4 +19,8 @@ services:
       - OTEL_LOG_LEVEL=DEBUG
       - OTEL_SERVICE_NAME=plugin_hub
       - LOG_LEVEL=debug
+      - TMP=tmp
+      - TMP_TTL=900
+      - PROFILE_HISTORY=profile-history
+      - PROFILE_HISTORY_TTL=1209600
     command: npm run start:container
