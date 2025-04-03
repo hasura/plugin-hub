@@ -4,7 +4,7 @@ The **POST** `/profile` endpoint provides data profiling capabilities for respon
 
 ## Headers
 
-- `profile-filename`: Specifies the output file for the profiling report. Defaults to the query operation name.
+- `profile-filename`: Specifies the output file for the profiling report. Defaults to the query operation name + .profile.json.
 - `x-hasura-user`: User identifier for tracking profiling requests
 - `profile-history`: Enables historical profile tracking. Can also be set via `PROFILE_HISTORY` environment variable.
 

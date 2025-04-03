@@ -1,7 +1,7 @@
 import {ErrorObject} from "ajv";
 import fs from "fs";
 import path from "path";
-import {AJVOptions} from "./validate.js";
+import {Options as AJVOptions} from "ajv"
 import {TMP, GraphQLRequest} from "../common/index.js";
 
 /**

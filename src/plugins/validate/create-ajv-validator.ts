@@ -1,6 +1,5 @@
-import Ajv, {ValidateFunction} from "ajv";
+import Ajv, {ValidateFunction, Options as AJVOptions} from "ajv";
 import addFormats from 'ajv-formats'
-import {AJVOptions} from "./validate.js";
 
 /**
  * Creates a new Ajv validator instance based on the provided JSON schema and options.
@@ -10,6 +9,8 @@ import {AJVOptions} from "./validate.js";
  */
 export const createAjvValidator = (schema: string, options: AJVOptions): ValidateFunction<unknown> => {
     const ajv = new Ajv(options);
-    addFormats(ajv);
-    return ajv.compile(JSON.parse(schema));
+    addFormats(ajv, {keywords: true});
+    const schema_json: any = JSON.parse(schema)
+    const ajv_compile = ajv.compile(schema_json)
+    return ajv_compile;
 }

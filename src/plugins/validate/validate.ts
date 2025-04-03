@@ -6,12 +6,7 @@ import {writeReportFile} from "./write-report-file.js";
 import {handleErrors} from "./handle-errors.js";
 import {createAjvValidator} from "./create-ajv-validator.js";
 import path from "path";
-
-export type AJVOptions = {
-    verbose: boolean;
-    allErrors: boolean;
-    strict: boolean;
-}
+import {Options as AJVOptions} from "ajv"
 
 export const validatePlugin = async (req: Request, res: Response) => {
     try {
@@ -29,9 +24,10 @@ export const validatePlugin = async (req: Request, res: Response) => {
         const validateFilename = req.header("validate-filename") || `${rawRequest.operationName}.json`;
 
         const ajvOptions: AJVOptions = {
+            $data: true,
             verbose: validateOptions?.indexOf("verbose") !== -1,
             allErrors: validateOptions?.indexOf("allerrors") !== -1,
-            strict: validateOptions?.indexOf("strict") !== -1
+            strict: validateOptions?.indexOf("strict") === -1
         }
 
         const log = validateOptions?.indexOf("log") !== -1;
@@ -41,9 +37,11 @@ export const validatePlugin = async (req: Request, res: Response) => {
             span?.setAttributes({jsonSchema, validateOptions, user, maxErrors, validateFilename, query, operationName: operationName || ''})
             const validator = createAjvValidator(jsonSchema, ajvOptions);
             validator({data});
-
+            const filteredErrors = (validator.errors || []).filter(item => {
+                return !(item.keyword === "if" && item.params?.failingKeyword === "then");
+            });
             if (validateFilename) {
-                writeReportFile(jsonSchema, ajvOptions, rawRequest, validator.errors || [], path.join(TMP, validateFilename), user, session);
+                writeReportFile(jsonSchema, ajvOptions, rawRequest, filteredErrors, path.join(TMP, validateFilename), user, session);
             }
 
             if (validator.errors) {

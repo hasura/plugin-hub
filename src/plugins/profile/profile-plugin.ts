@@ -14,7 +14,7 @@ export const profilePlugin = async (req: Request, res: Response) => {
 
     const rawRequest: GraphQLRequest = req.body['rawRequest'];
     const { operationName, query } = rawRequest;
-    const profileFilename = req.header("profile-filename") || `${rawRequest.operationName}.json`;
+    const profileFilename = req.header("profile-filename") || `${rawRequest.operationName}.profile.json`;
     const trackHistory = req.header("profile-history") || process.env.PROFILE_HISTORY
     const {response: {data}} = req.body;
     if (operationName == 'IntrospectionQuery' || !data || !profileFilename) {
