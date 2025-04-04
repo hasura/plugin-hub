@@ -1,0 +1,18 @@
+kind: Subgraph
+version: v2
+definition:
+  name: globals
+  generator:
+    rootPath: .
+  includePaths:
+    - metadata
+  envMapping:
+    VALIDATE_URL:
+      fromEnv: VALIDATE_URL
+    FILE_OUTPUT_URL:
+      fromEnv: FILE_OUTPUT_URL
+    PROFILE_URL:
+      fromEnv: PROFILE_URL
+    M_AUTH_KEY:
+      fromEnv: M_AUTH_KEY
+

@@ -91,7 +91,7 @@ Here's a fragment of the complete schema focusing on the quantity validation:
 
 Control validation behavior through these headers:
 * `json-schema`: JSON Schema definition to validate response data against
-* `validate-options`: Comma-separated validation flags (verbose, allerrors, strict, log)
+* `validate-options`: Comma-separated validation flags (verbose, allerrors, strict, log, db)
 * `max-validate-errors`: Maximum number of validation errors to return (default: 10)
 * `validate-filename`: Custom filename for validation results
 * `x-hasura-user`: User identifier for tracking validation requests
@@ -135,10 +135,10 @@ This shows the exact record location, validation rule, and failing value.
 ## Plugin Integration
 To integrate a plugin with your Hasura instance:
 
-1. Add the plugin endpoint URL to your Hasura DDN configuration. Add the files at `./config/globals/metadata` to you supergraph's `globals/metadata` folder.
+1. Add the plugin endpoint URL to your Hasura DDN configuration. Add the files at `./config/globals/metadata` to you supergraph's `globals/metadata` folder and merge the envMapping key of `./config/globals/subgraph.yaml` into your current `globals/subgraph.yaml`.
 2. Configure the Hasura DDN environment variables by adding the values at `./config/.env` to your supergraph's `.env` file.
 3. Build the supergraph and restart it. For local development the commands would be ```ddn supergraph build local & ddn run docker-start```
-4. Launch the `plugin-hub` with `docker compose up`. Or, alternatively, for local development you may want to add `<path-to-compose.yaml>` to the supergraph's root `compose.yaml/include`.
+4. Launch the `plugin-hub` with `docker compose up`. Or, alternatively, for local development you may want to add `<path-to-compose.yaml>` to the supergraph's root `compose.yaml/include`. Finally, as an alternative you can create an include statement in your supergraph's `compose.yaml` to point to the pluging hub's `compose.yaml` this start the service every time you start the supergraph.
 5. Launch the console, create a query, and add any of the documented variables. If you are creating a file - it will located at `./tmp` in the `plugin-hub` root. Or, you can download the file using `http://localhost:8787/files/<filename>`.
 
 ## Development

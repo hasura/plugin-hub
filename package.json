@@ -12,7 +12,10 @@
     "run:watch": " OTEL_EXPORTER_OTLP_INSECURE=true OTEL_LOG_LEVEL=DEBUG OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 OTEL_SERVICE_NAME=plugin_hub LOG_LEVEL=debug OTEL_METRICS_EXPORTER=console OTEL_TRACES_EXPORTER=console OTEL_LOG_EXPORTER=console nodemon",
     "dev": "run-p build:watch run:watch",
     "clean": "rm -rf dist",
-    "prebuild": "npm run clean"
+    "prebuild": "npm run clean",
+    "typeorm": "typeorm-ts-node-esm -d ./src/plugins/validate/db/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate ./src/migration/$npm_config_name",
+    "migration:run": "npm run typeorm -- migration:run"
   },
   "keywords": [],
   "author": "",
@@ -38,7 +41,10 @@
     "graphql": "^16.9.0",
     "into-stream": "^8.0.1",
     "node-cron": "^3.0.3",
+    "pg": "^8.14.1",
     "serve-index": "^1.9.1",
+    "typeorm": "^0.3.22",
+    "typeorm-naming-strategies": "^4.1.0",
     "uuid": "^11.0.2",
     "winston": "^3.15.0"
   },

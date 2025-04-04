@@ -1,7 +1,7 @@
 # Response Validator
 
 The **POST** `/validate` endpoint provides JSON Schema validation for response data. It supports custom validation
-options, error reporting, and telemetry integration.
+options, error reporting (through files and/or persisting to a database), and telemetry integration.
 
 ## Why?
 
@@ -16,6 +16,32 @@ consistent format so that data producers, support agents,
 and consumers can have meaningful, fact-based discussions on 
 data quality issues.
 
+## Using Hasura PromptQL with data validations
+
+To use PromptQL with data validation results you must persist the data validation results to a database and add that database to your supergraph.
+
+1. You must use a database that is supported by [TypeORM](https://typeorm.io/). By default, its setup to use a local Postgres instance but you can manage this by altering your .env file . The easiest way to create a local PG instance for testing is to use docker and issue this command:
+
+```
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres postgres
+```
+2. As an alternative to the default postgres implementation, you can add a `.env` file and this env variables:
+
+```dotenv
+    DB_TYPE=postgress
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_USER=<postgres>
+    DB_PASSWORD=<password>
+    DB_SCHEMA=data_quality
+    DB_NAME=postgres
+```
+
+If you have a more custom setup, you can alter the source `src/plugins/validate/db/data-source.ts`.
+
+3. Add the db schema, by running: `./migrate_db.sh`
+4. If you have modified the `DB_*` env variables - you will need to add those to the plugin hubs `compose.yaml`.
+
 ## Headers
 
 - `json-schema`: JSON Schema definition to validate response data against
@@ -24,6 +50,7 @@ data quality issues.
     - `allerrors`: Return all validation errors instead of stopping at first
     - `strict`: Enable strict validation mode
     - `log`: Enable error logging
+    - `db`: Enable db logging
 - `x-hasura-user`: User identifier for tracking validation requests
 - `max-validate-errors`: Maximum number of validation errors to return (default: 10)
 - `validate-filename`: Writes validation report to file, defaults to query's operation name
@@ -100,7 +127,7 @@ query MyQuery {
 #### validate-options
 
 ```text
-allErrors,strict,verbose,log
+allErrors,strict,verbose,log,db
 ```
 
 #### validate-filename

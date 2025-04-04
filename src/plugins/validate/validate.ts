@@ -7,6 +7,10 @@ import {handleErrors} from "./handle-errors.js";
 import {createAjvValidator} from "./create-ajv-validator.js";
 import path from "path";
 import {Options as AJVOptions} from "ajv"
+import {saveValidation} from "./db/save-validation.js";
+import {AppDataSource} from "./db/data-source.js";
+
+import {InputValidationResult} from "./db/types.js";
 
 export const validatePlugin = async (req: Request, res: Response) => {
     try {
@@ -25,9 +29,9 @@ export const validatePlugin = async (req: Request, res: Response) => {
 
         const ajvOptions: AJVOptions = {
             $data: true,
-            verbose: validateOptions?.indexOf("verbose") !== -1,
-            allErrors: validateOptions?.indexOf("allerrors") !== -1,
-            strict: validateOptions?.indexOf("strict") === -1
+            verbose: validateOptions ? validateOptions.indexOf("verbose") !== -1 : false,
+            allErrors: validateOptions ? validateOptions.indexOf("allerrors") !== -1 : true,
+            strict: validateOptions ? validateOptions.indexOf("strict") !== -1 : false
         }
 
         const log = validateOptions?.indexOf("log") !== -1;
@@ -42,6 +46,21 @@ export const validatePlugin = async (req: Request, res: Response) => {
             });
             if (validateFilename) {
                 writeReportFile(jsonSchema, ajvOptions, rawRequest, filteredErrors, path.join(TMP, validateFilename), user, session);
+            }
+            if (validateOptions?.indexOf("db") !== -1) {
+                const dataString: InputValidationResult = {
+                    jsonSchema: jsonSchema ? JSON.parse(jsonSchema) : undefined,
+                    verbose: ajvOptions.verbose,
+                    allErrors: ajvOptions.allErrors,
+                    strict: ajvOptions.strict,
+                    user,
+                    role: session.role,
+                    query: rawRequest?.query,
+                    operationName: rawRequest?.operationName || '',
+                    variables: JSON.stringify(rawRequest?.variables),
+                    errors: filteredErrors as any[]
+                } as InputValidationResult;
+                await saveValidation(AppDataSource, dataString)
             }
 
             if (validator.errors) {

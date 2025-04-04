@@ -8,9 +8,14 @@ import addFormats from 'ajv-formats'
  * @returns {Function} A compiled validator function based on the provided schema.
  */
 export const createAjvValidator = (schema: string, options: AJVOptions): ValidateFunction<unknown> => {
-    const ajv = new Ajv(options);
-    addFormats(ajv, {keywords: true});
+    const ajv = new (Ajv as any)(options);
+    (addFormats as any)(ajv, {keywords: true});
     const schema_json: any = JSON.parse(schema)
-    const ajv_compile = ajv.compile(schema_json)
-    return ajv_compile;
+    try {
+        const ajv_compile = ajv.compile(schema_json)
+        return ajv_compile;
+    } catch(e) {
+        console.log(e)
+        throw e
+    }
 }
